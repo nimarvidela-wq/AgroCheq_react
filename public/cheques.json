@@ -1,0 +1,5 @@
+[
+  { "id": 1, "numero": "0000078", "proveedor": "Semillas del Sur", "banco": "Nación", "monto": 1500000, "fechaPago": "2026-11-20" },
+  { "id": 2, "numero": "0000077", "proveedor": "Agroquímicos S.A.", "banco": "Galicia", "monto": 850000, "fechaPago": "2026-11-05" },
+  { "id": 3, "numero": "0000076", "proveedor": "Transportes Gómez", "banco": "Santander", "monto": 2000000, "fechaPago": "2026-09-15" }
+]
