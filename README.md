@@ -1,16 +1,69 @@
-# React + Vite
+# AgroCheq — Gestión Full Stack de Cheques
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicación web SPA desarrollada con **React (Vite)** y una **API REST en Node.js + Express** con persistencia local en archivo JSON, diseñada para el control, filtrado y seguimiento de vencimientos de cheques en empresas agropecuarias.
 
-Currently, two official plugins are available:
+## Estructura del proyecto
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```text
+agrocheq-react/
+├── backend/                  # API REST (Node.js + Express)
+│   ├── data/
+│   │   └── cheques.json      # Persistencia de datos en JSON
+│   ├── src/
+│   │   ├── controllers/      # Lógica CRUD y validaciones
+│   │   ├── middlewares/      # Logger, manejo de 404 y errores 500
+│   │   ├── routes/           # Definición de endpoints (/api/cheques)
+│   │   └── index.js          # Punto de entrada del servidor
+│   └── package.json
+├── public/                   # Recursos estáticos
+├── src/                      # Frontend (React)
+│   ├── components/           # Componentes reutilizables (Sidebar, tarjetas, etiquetas)
+│   ├── pages/                # Vistas principales (Inicio y Cheques)
+│   └── App.jsx               # Estado global y consumo de la API
+├── .env                      # Variables de entorno del frontend
+└── package.json
+```
 
-## React Compiler
+## Requisitos previos
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* Tener instalado **Node.js** (v18 o superior).
 
-## Expanding the ESLint configuration
+## Instalación y ejecución
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Para ejecutar el sistema completo es necesario levantar **dos terminales en paralelo** (una para el backend y otra para el frontend).
+
+### 1. Iniciar el Backend (Puerto 3000)
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+El servidor quedará escuchando en `http://localhost:3000`. Se puede verificar ingresando a `http://localhost:3000/api/salud`.
+
+### 2. Iniciar el Frontend (Puerto 5173)
+
+En una segunda terminal, ubicado en la carpeta raíz (`agrocheq-react/`):
+
+1. Crear un archivo `.env` en la raíz con la URL de la API:
+   ```env
+   VITE_API_URL=http://localhost:3000/api
+   ```
+2. Instalar dependencias y arrancar Vite:
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+Abrir en el navegador la dirección local indicada por Vite (por defecto `http://localhost:5173`).
+
+## Endpoints principales de la API
+
+| Método | Ruta | Descripción | Respuesta exitosa |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/cheques` | Lista todos los cheques (admite `?banco=` y `?buscar=`) | `200 OK` |
+| `GET` | `/api/cheques/:id` | Obtiene un cheque específico por su ID | `200 OK` |
+| `POST` | `/api/cheques` | Valida y registra un nuevo cheque | `201 Created` |
+| `PUT` | `/api/cheques/:id` | Actualiza los datos de un cheque existente | `200 OK` |
+| `DELETE` | `/api/cheques/:id` | Elimina un cheque por su ID | `204 No Content` |

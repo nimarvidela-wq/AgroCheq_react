@@ -1,0 +1,10 @@
+[
+  {
+    "id": 1,
+    "numero": "0000912",
+    "proveedor": "Semilla S.A",
+    "banco": "Santander",
+    "monto": 15200000,
+    "fechaPago": "2026-12-16"
+  }
+]

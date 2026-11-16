@@ -1,7 +1,9 @@
-import Cheques from './pages/Cheques' 
 import { useState, useEffect } from 'react'
 import Sidebar from './components/Sidebar'
 import Inicio from './pages/Inicio'
+import Cheques from './pages/Cheques'
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const calcularEstadoCheque = (fechaString) => {
   const hoy = new Date();
@@ -15,18 +17,17 @@ const calcularEstadoCheque = (fechaString) => {
 };
 
 function App() {
-  // ESTADO NUEVO: Controla en qué pantalla estamos
   const [pantallaActual, setPantallaActual] = useState('inicio');
-  
-  const [cheques, setCheques] = useState([])
-  const [cargando, setCargando] = useState(true)
-  const [error, setError] = useState(null)
+  const [cheques, setCheques] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState(null);
 
+  // GET: Cargar lista inicial desde nuestra API
   useEffect(() => {
-    fetch('/cheques.json')
+    fetch(`${API_URL}/cheques`)
       .then(respuesta => {
-        if (!respuesta.ok) throw new Error('Error al cargar los cheques')
-        return respuesta.json()
+        if (!respuesta.ok) throw new Error('Error al cargar los cheques desde el servidor');
+        return respuesta.json();
       })
       .then(datosCrudos => {
         const datosProcesados = datosCrudos.map(cheque => ({
@@ -39,22 +40,61 @@ function App() {
       .catch(err => {
         setError(err.message);
         setCargando(false);
-      })
-  }, [])
+      });
+  }, []);
+
+  // POST: Crear nuevo cheque en el servidor y actualizar estado global
+  const crearCheque = async (datosNuevoCheque) => {
+    const respuesta = await fetch(`${API_URL}/cheques`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datosNuevoCheque)
+    });
+
+    const data = await respuesta.json();
+
+    if (!respuesta.ok) {
+      throw new Error(data.error || 'No se pudo guardar el cheque');
+    }
+
+    const chequeConEstado = {
+      ...data,
+      estado: calcularEstadoCheque(data.fechaPago)
+    };
+
+    setCheques(prevCheques => [chequeConEstado, ...prevCheques]);
+  };
+
+  // DELETE: Eliminar cheque en el servidor y quitarlo de la lista
+  const eliminarCheque = async (id) => {
+    const respuesta = await fetch(`${API_URL}/cheques/${id}`, {
+      method: 'DELETE'
+    });
+
+    if (!respuesta.ok) {
+      const data = await respuesta.json().catch(() => ({}));
+      throw new Error(data.error || 'No se pudo eliminar el cheque');
+    }
+
+    setCheques(prevCheques => prevCheques.filter(cheque => cheque.id !== id));
+  };
 
   return (
     <div className="contenedor-app">
-      {/* Le pasamos la función a la Sidebar para que los botones puedan cambiar la pantalla */}
       <Sidebar pantallaActual={pantallaActual} setPantallaActual={setPantallaActual} />
-      
-      {/* RENDERIZADO CONDICIONAL: Si el estado es 'inicio', mostramos el componente Inicio */}
+
       {pantallaActual === 'inicio' && (
         <Inicio cheques={cheques} cargando={cargando} error={error} />
       )}
 
-      {/* RENDERIZADO CONDICIONAL: Si el estado es 'cheques', mostramos un mensaje temporal */}
       {pantallaActual === 'cheques' && (
-        <Cheques cheques={cheques} cargando={cargando} error={error} />
+        <Cheques
+          cheques={cheques}
+          cargando={cargando}
+          error={error}
+          onCrearCheque={crearCheque}
+          onEliminarCheque={eliminarCheque}
+        />
       )}
     </div>
   )
