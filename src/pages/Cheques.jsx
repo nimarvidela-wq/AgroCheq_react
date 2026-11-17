@@ -16,6 +16,11 @@ export default function Cheques({ cheques, cargando, error, onCrearCheque, onEli
   const [nuevoBanco, setNuevoBanco] = useState('Nación');
   const [nuevoMonto, setNuevoMonto] = useState('');
   const [nuevaFecha, setNuevaFecha] = useState('');
+  const formatearMiles = (valor) => {
+  const soloNumeros = valor.replace(/\D/g, '');
+  if (!soloNumeros) return '';
+  return soloNumeros.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+};
 
   // Filtrado avanzado (Buscador + Selects)
   const chequesFiltrados = cheques.filter(cheque => {
@@ -52,7 +57,7 @@ export default function Cheques({ cheques, cargando, error, onCrearCheque, onEli
         numero: nuevoNumero,
         proveedor: nuevoProveedor,
         banco: nuevoBanco,
-        monto: Number(nuevoMonto),
+        monto: Number(String(nuevoMonto).replace(/\./g, '')),
         fechaPago: nuevaFecha
       });
 
@@ -249,7 +254,7 @@ export default function Cheques({ cheques, cargando, error, onCrearCheque, onEli
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.3rem' }}>Monto ($)</label>
-                <input type="number" placeholder="Ej: 1500000" value={nuevoMonto} onChange={e => setNuevoMonto(e.target.value)} required style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--borde-suave)', borderRadius: '4px' }} />
+                <input type="text" inputMode="numeric" placeholder="Ej: 1.500.000" value={nuevoMonto} onChange={e => setNuevoMonto(formatearMiles(e.target.value))} required style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--borde-suave)', borderRadius: '4px' }} />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.3rem' }}>Fecha de Pago</label>
